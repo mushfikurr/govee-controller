@@ -5,7 +5,7 @@ export function AjaxSlider(props) {
     const [ sliderVal, setSliderVal ] = useState(props.brightness); 
 
     const handleCommit = (_, newValue) => {
-        props.onBrightnessChange(newValue);
+        props.onValueChange(newValue);
     }
 
     const handleChange = (_, newValue) => {

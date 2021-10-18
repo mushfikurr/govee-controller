@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getAPIAllDevicesState } from '../utils/api';
 import { DeviceCurrent } from './DeviceCurrent';
 import { Typography, Box, makeStyles, IconButton } from '@material-ui/core';
+import { PropertyControlContainer } from './functional/PropertyControl';
 import RefreshIcon from '@material-ui/icons/Refresh';
 
 export function DeviceController() {
