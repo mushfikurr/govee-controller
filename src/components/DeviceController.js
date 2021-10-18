@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { getAPIAllDevicesState } from '../utils/api';
-import { DeviceListElement } from './functional/DeviceListElement';
 import { DeviceCurrent } from './DeviceCurrent';
 import { Typography, Box, makeStyles, IconButton } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
@@ -40,7 +39,7 @@ export function DeviceController() {
     }, [devices]);
 
     useEffect(() => {
-        console.log(currentDevice);
+        // console.log(currentDevice);
     }, [currentDevice]);
 
     const handleClick = (deviceId) => {
@@ -64,11 +63,7 @@ export function DeviceController() {
                     </IconButton>
                 </Box>
             </Typography>
-            {/* <DeviceListElement currentDevice={device} devices={devices} handleClick={handleClick} /> */}
             { renderDevicePanel() }
-            {/* <div>
-                { devices.map( (device) => <CurrentDevice key={device.device} {...device} /> ) }
-            </div> */}
         </>
     );
 }

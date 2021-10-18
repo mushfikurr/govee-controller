@@ -83,9 +83,8 @@ export function CurrentDeviceElement(props) {
                 <Typography variant="body1">
                     Brightness
                 </Typography>
-                <AjaxSlider onBrightnessChange={props.onBrightnessChange} min={10} max={100} isOnCooldown={props.isOnCooldown} powerState={props.powerState} />
+                <AjaxSlider onBrightnessChange={props.onBrightnessChange} min={10} max={100} isOnCooldown={props.isOnCooldown} brightness={props.brightness} powerState={props.powerState} />
             </div>
         </Paper>
     )
 }
-        

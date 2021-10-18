@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useInterval } from '../hooks/useInterval'
-import { dispatchAPICommand, getAPIDeviceState } from '../utils/api';
+import { dispatchAPICommand, getAPIDeviceState, getInstructionIndex } from '../utils/api';
 import { CurrentDeviceElement } from './functional/DeviceCurrentElement';
 
 export function DeviceCurrent(device) {
@@ -22,29 +22,40 @@ export function DeviceCurrent(device) {
     // On component load
     useEffect(() => {
         setLoading(true);
-        // console.log(device);
         getAPIDeviceState(device)
         .then(response => {
             const deviceData = response.data.data;
-            // console.log(response.data.data);
             updateAllProperties(deviceData.properties);
+            console.log(deviceData);
             setLoading(false);
             setMounted(true);
         })
     }, []);
 
-    // Handles polling
-    const [pollingRate, setPollingRate] = useState(5000);
+    // Polling + Cooldown - This helps the UI stay in sync with the smart device. 
+    // When an action is performed, the UI is put in a state of, 'cooldown', where the user will not be able to perform any actions.
+    // An expected value is put into state, and the client will poll the API for the expected value.
+    // Only after the expected value is found will the cooldown be released.
+    // This helps the UI stay in sync with the smart device.
+
+    const [pollingRate, setPollingRate] = useState(500);
     const [shouldPoll, setShouldPoll] = useState(false);
+    const [expectedValue, setExpectedValue] = useState([]); 
     useInterval(() =>{
-        if (shouldPoll) {
+        if (shouldPoll) { 
+            console.log("Polling..")
             getAPIDeviceState(device)
             .then(response => {
-                
-                    if (hasMounted && !isOnCooldown && !loading) {
-                        const deviceData = response.data.data;
+                if (hasMounted) {
+                    const indexToBeChecked = getInstructionIndex(expectedValue[0]);
+                    const deviceData = response.data.data;
+                    if (Object.values(deviceData.properties[indexToBeChecked]).includes(expectedValue[1])) {
+                        console.log("Matches!")
+                        setShouldPoll(false);
+                        setIsOnCooldown(false);
                         updateAllProperties(deviceData.properties);
                     }
+                }
             })
             .catch(err => {
                 console.log(err);
@@ -56,9 +67,11 @@ export function DeviceCurrent(device) {
     // Send a PUT request detailing changes to API.
     const [isOnCooldown, setIsOnCooldown] = useState(false); // Cooldown for all device instructions
 
-    // Toggle Power
+    // Handling the switch of power
     const newPowerState = powerState === "on" ? "off" : "on";
     const handlePower = _ => {if (!isOnCooldown) updatePowerState(newPowerState);}
+
+    // Fired when power is toggled
     useEffect(() => {
         if (hasMounted && !isOnCooldown) {
             setLoading(true);
@@ -67,25 +80,20 @@ export function DeviceCurrent(device) {
             dispatchAPICommand(command, device)
             .then(response => {
                 if (response.data.message === "Success") {
-                    updatePowerState(powerState);
-                    setLoading(false);
+                    setExpectedValue(["powerState", powerState]);
                     setIsOnCooldown(true);
-                    let cooldownTimer = setTimeout(() => {
-                        setIsOnCooldown(false);
-                    }, 800);
-                    return () => {
-                        clearTimeout(cooldownTimer);
-                    }
+                    setShouldPoll(true);
                 }
             });
         }
     }, [powerState])
 
-    const handleBrightnessChange = (event, newValue) => {
+    const handleBrightnessChange = (newValue) => {
         if (!isOnCooldown) {
             updateBrightness(newValue);
         }
     }
+
     useEffect(() => {
         if (hasMounted && !isOnCooldown) {
             setLoading(true);
