@@ -38,10 +38,6 @@ export function DeviceController() {
         }
     }, [devices]);
 
-    useEffect(() => {
-        // console.log(currentDevice);
-    }, [currentDevice]);
-
     const handleClick = (deviceId) => {
         const foundDevice = devices.find(obj => obj.device === deviceId);
         setCurrentDevice(foundDevice);

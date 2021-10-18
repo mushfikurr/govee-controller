@@ -37,6 +37,7 @@ export function DeviceCurrent(device) {
     // An expected value is put into state, and the client will poll the API for the expected value.
     // Only after the expected value is found will the cooldown be released.
     // This helps the UI stay in sync with the smart device.
+    // Decreasing the pollingRate leads to faster detection of change in state.
 
     const [pollingRate, setPollingRate] = useState(500);
     const [shouldPoll, setShouldPoll] = useState(false);
@@ -101,15 +102,9 @@ export function DeviceCurrent(device) {
             dispatchAPICommand(command, device)
             .then(response => {
                 if (response.data.message === "Success") {
-                    updateBrightness(brightness);
-                    setLoading(false);
+                    setExpectedValue(["brightness", brightness]);
                     setIsOnCooldown(true);
-                    let cooldownTimer = setTimeout(() => {
-                        setIsOnCooldown(false);
-                    }, 800);
-                    return () => {
-                        clearTimeout(cooldownTimer);
-                    }
+                    setShouldPoll(true);
                 }
             });
         }
