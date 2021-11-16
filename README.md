@@ -1,4 +1,4 @@
-# gve-react-frontend
+# Govee Controller
 
 A React web app for controlling Govee smart devices!
 
